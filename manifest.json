@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "PDF Annotator",
+  "version": "1.0",
+  "description": "Add transparent text boxes and images to PDFs",
+  "action": {
+    "default_title": "Open PDF Annotator"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "activeTab"
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "lib/pdf.worker.min.js",
+        "lib/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}

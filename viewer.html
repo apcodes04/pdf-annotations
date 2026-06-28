@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Annotator</title>
+    <link rel="stylesheet" href="styles/viewer.css">
+    <link rel="stylesheet" href="styles/annotations.css">
+    <link rel="stylesheet" href="lib/cropper.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat&family=Fira+Sans&family=Inconsolata&family=Lato&family=Lora&family=Merriweather&family=Montserrat&family=Mukta&family=Noto+Sans&family=Nunito&family=Open+Sans&family=Oswald&family=Pacifico&family=Playfair+Display&family=Poppins&family=PT+Sans&family=Quicksand&family=Raleway&family=Roboto&family=Rubik&family=Source+Sans+Pro&family=Ubuntu&family=Work+Sans&display=swap">
+    <!-- Libraries -->
+    <script src="lib/pdf.min.js"></script>
+    <script src="lib/pdf-lib.min.js"></script>
+    <script src="lib/fontkit.min.js"></script>
+    <script src="lib/cropper.min.js"></script>
+</head>
+<body>
+    <div id="toolbar">
+        <div class="toolbar-group">
+            <label for="fileInput" id="openPdfLabel" class="custom-file-upload">Open PDF</label>
+            <input type="file" id="fileInput" accept="application/pdf">
+            
+            <button id="editPdfBtn" style="display:none;">Edit PDF</button>
+            <label for="addPdfInput" id="addPdfLabel" class="custom-file-upload" style="display:none;">Add PDF</label>
+            <input type="file" id="addPdfInput" accept="application/pdf" style="display:none;">
+            <input type="file" id="imageInput" accept="image/*" style="display:none;">
+        </div>
+        <div class="toolbar-group">
+            <button id="undoBtn" disabled title="Undo (Ctrl+Z)">Undo</button>
+            <button id="redoBtn" disabled title="Redo (Ctrl+Y)">Redo</button>
+            <div class="divider"></div>
+            <button id="addTextBtn" disabled>Add Text Box</button>
+            <button id="addImageBtn" disabled>Add Image</button>
+            <div class="dropdown" id="fixInvertDropdown" style="display:inline-block;">
+                <button id="fixInvertMenuBtn" disabled title="Fix Inverted Image Options">Fix Inversion ▾</button>
+                <div class="dropdown-content" id="fixInvertMenuContent">
+                    <button id="fixInvertBtn">Add Inversion Box</button>
+                    <button id="editInvertBtn">Edit/Delete Boxes</button>
+                </div>
+            </div>
+            <div class="divider"></div>
+            <button id="darkModeBtn">Dark Mode</button>
+            <div class="divider"></div>
+            <span id="pageIndicator" style="color: white; font-size: 14px; margin-left: 10px; display: none;"></span>
+        </div>
+        
+        <div class="toolbar-group" id="formattingToolbar" style="display:none;">
+            <!-- Text Formatting -->
+            <select id="fontFamilyBtn" title="Select Font Family" class="format-select">
+                <option value="Helvetica" style="font-family: Helvetica;">Helvetica (Standard)</option>
+                <option value="TimesRoman" style="font-family: 'Times New Roman';">Times Roman (Standard)</option>
+                <option value="Courier" style="font-family: Courier;">Courier (Standard)</option>
+                <option value="Roboto" style="font-family: 'Roboto';">Roboto</option>
+                <option value="Open Sans" style="font-family: 'Open Sans';">Open Sans</option>
+                <option value="Lato" style="font-family: 'Lato';">Lato</option>
+                <option value="Montserrat" style="font-family: 'Montserrat';">Montserrat</option>
+                <option value="Oswald" style="font-family: 'Oswald';">Oswald</option>
+                <option value="Source Sans Pro" style="font-family: 'Source Sans Pro';">Source Sans Pro</option>
+                <option value="Slabo 27px" style="font-family: 'Slabo 27px';">Slabo</option>
+                <option value="Raleway" style="font-family: 'Raleway';">Raleway</option>
+                <option value="PT Sans" style="font-family: 'PT Sans';">PT Sans</option>
+                <option value="Merriweather" style="font-family: 'Merriweather';">Merriweather</option>
+                <option value="Nunito" style="font-family: 'Nunito';">Nunito</option>
+                <option value="Playfair Display" style="font-family: 'Playfair Display';">Playfair Display</option>
+                <option value="Lora" style="font-family: 'Lora';">Lora</option>
+                <option value="Mukta" style="font-family: 'Mukta';">Mukta</option>
+                <option value="Ubuntu" style="font-family: 'Ubuntu';">Ubuntu</option>
+                <option value="Poppins" style="font-family: 'Poppins';">Poppins</option>
+                <option value="Rubik" style="font-family: 'Rubik';">Rubik</option>
+                <option value="Noto Sans" style="font-family: 'Noto Sans';">Noto Sans</option>
+                <option value="Quicksand" style="font-family: 'Quicksand';">Quicksand</option>
+                <option value="Work Sans" style="font-family: 'Work Sans';">Work Sans</option>
+                <option value="Fira Sans" style="font-family: 'Fira Sans';">Fira Sans</option>
+                <option value="Inconsolata" style="font-family: 'Inconsolata';">Inconsolata</option>
+                <option value="Pacifico" style="font-family: 'Pacifico';">Pacifico</option>
+                <option value="Caveat" style="font-family: 'Caveat';">Caveat</option>
+            </select>
+            <input type="number" id="fontSizeBtn" value="16" min="8" max="72" class="format-input" title="Font Size">
+            <button id="boldBtn" class="format-btn" title="Bold"><b>B</b></button>
+            <button id="italicBtn" class="format-btn" title="Italic"><i>I</i></button>
+            <input type="color" id="textColorBtn" value="#000000" class="color-picker" title="Text Color">
+            <span id="fontNote" style="display:none; font-size: 11px; color: #ffb74d; margin-left: 5px; max-width: 150px; line-height: 1.2;">* Custom fonts require internet to save</span>
+            <!-- Image Formatting -->
+            <button id="borderBtn" class="format-btn" style="display:none;" title="Toggle Border">Border</button>
+            <button id="cropBtn" class="format-btn" style="display:none;" title="Crop Image">Crop</button>
+            <button id="applyCropBtn" class="format-btn primary" style="display:none;" title="Apply Crop">Apply</button>
+            <button id="cancelCropBtn" class="format-btn" style="display:none;" title="Cancel Crop">Cancel</button>
+            <button id="applyBoxBtn" class="format-btn primary" style="display:none;" title="Apply Box">Apply</button>
+            <button id="deleteBoxBtn" class="format-btn" style="display:none; color: #ff5252;" title="Delete Box">Delete</button>
+        </div>
+
+        <div class="toolbar-group right">
+            <button id="saveBtn" class="primary" disabled>Save PDF</button>
+        </div>
+    </div>
+    
+    <dialog id="addPdfDialog" style="border: none; border-radius: 8px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        <h3 style="margin-top: 0;">Insert PDF Pages</h3>
+        <p>Where would you like to add the new PDF pages?</p>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button id="insertStartBtn" class="format-btn">At Start</button>
+            <button id="insertAfterBtn" class="format-btn">After Current Page</button>
+            <button id="insertEndBtn" class="format-btn primary">At End</button>
+            <button id="insertCancelBtn" class="format-btn" style="margin-left: auto;">Cancel</button>
+        </div>
+    </dialog>
+    
+    <div id="mainContent">
+        <div id="sidebar">
+            <div id="thumbnailsContainer"></div>
+        </div>
+        <div id="viewerContainer">
+            <div id="pdfContainer"></div>
+        </div>
+    </div>
+
+    <!-- App Scripts -->
+    <script src="scripts/historyManager_v4.js"></script>
+    <script src="scripts/annotationManager_v4.js"></script>
+    <script src="scripts/pdfRenderer_v4.js"></script>
+    <script src="scripts/pdfExporter_v4.js"></script>
+    <script src="scripts/main_v4.js"></script>
+</body>
+</html>
