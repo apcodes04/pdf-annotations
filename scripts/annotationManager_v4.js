@@ -1,12 +1,12 @@
 class AnnotationManager {
-    constructor() {
+    constructor(historyManager) {
         this.annotations = [];
         this.currentMode = null; 
         this.pendingImageData = null; 
         this.activeElement = null;
         this.cropperInstance = null;
         
-        this.historyManager = null; 
+        this.historyManager = historyManager; 
         this.formattingToolbar = document.getElementById('formattingToolbar');
         this.boldBtn = document.getElementById('boldBtn');
         this.italicBtn = document.getElementById('italicBtn');
@@ -60,7 +60,7 @@ class AnnotationManager {
         document.addEventListener('keydown', (e) => {
             if (this.cropperInstance) return; // disable delete/undo while cropping
             
-            if ((e.key === 'Delete' || e.key === 'Backspace') && e.target.tagName !== 'DIV' && e.target.tagName !== 'INPUT') {
+            if ((e.key === 'Delete' || e.key === 'Backspace') && e.target.tagName !== 'INPUT' && !e.target.isContentEditable) {
                 if (this.activeElement) {
                     const ann = this.getAnnotationByElement(this.activeElement);
                     if (ann) {
@@ -662,6 +662,57 @@ class AnnotationManager {
             isDragging = false;
             isResizing = false;
             resizePos = null;
+        });
+    }
+
+    loadAnnotations(annotationsData, pages) {
+        this.annotations = [];
+        annotationsData.forEach(data => {
+            const pageObj = pages[data.pageIndex];
+            if (!pageObj || !pageObj.container) return;
+            const pageContainer = pageObj.container;
+
+            let box = document.createElement('div');
+            box.className = 'annotation ' + (data.type === 'text' ? 'text-box' : data.type === 'image' ? 'image-box' : 'dont-invert-box');
+            
+            box.style.position = 'absolute';
+            box.style.left = `${data.x}px`;
+            box.style.top = `${data.y}px`;
+            box.style.width = `${data.width}px`;
+            box.style.height = `${data.height}px`;
+
+            if (data.type === 'text') {
+                const content = document.createElement('div');
+                content.className = 'text-box-content';
+                content.contentEditable = true;
+                content.innerText = data.text;
+                content.style.fontFamily = data.style.fontFamily;
+                content.style.fontSize = `${data.style.fontSize}px`;
+                content.style.color = data.style.color;
+                content.style.fontWeight = data.style.bold ? 'bold' : 'normal';
+                content.style.fontStyle = data.style.italic ? 'italic' : 'normal';
+                if (!data.style.border) box.style.border = 'none';
+                box.appendChild(content);
+            } else if (data.type === 'image') {
+                const img = document.createElement('img');
+                img.src = data.imgData;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.display = 'block';
+                box.appendChild(img);
+            }
+
+            this.addResizeHandles(box);
+            pageContainer.querySelector('.annotation-layer').appendChild(box);
+
+            const ann = {
+                type: data.type,
+                element: box,
+                pageContainer: pageContainer,
+                imgData: data.imgData
+            };
+            this.annotations.push(ann);
+            this.setupInteractions(box);
         });
     }
 

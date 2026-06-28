@@ -1,14 +1,41 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.loadedPdfs = [];
+
+window.saveState = async () => {
+    if (window.storageManager && window.loadedPdfs.length > 0) {
+        const annotations = window.annManager.getAnnotations();
+        await window.storageManager.saveState(window.loadedPdfs, annotations);
+    }
+};
+
+document.addEventListener('DOMContentLoaded', async () => {
+    window.storageManager = new StorageManager();
+    await window.storageManager.init();
+
     window.historyManager = new HistoryManager();
-    window.loadedPdfs = []; // { id, name, bytes }
-    
     const renderer = new PDFRenderer('pdfContainer', 'thumbnailsContainer');
-    renderer.historyManager = window.historyManager;
-    
-    const annManager = new AnnotationManager();
-    annManager.historyManager = window.historyManager;
-    
+    const annManager = new AnnotationManager(window.historyManager);
     const exporter = new PDFExporter();
+    
+    window.annManager = annManager;
+    window.pdfRenderer = renderer;
+
+    const state = await window.storageManager.loadState();
+    if (state && state.pdfs && state.pdfs.length > 0) {
+        window.loadedPdfs = state.pdfs;
+        for (const pdf of state.pdfs) {
+            await renderer.appendPDF(pdf.bytes, pdf.id, pdf.name);
+        }
+        annManager.loadAnnotations(state.annotations || [], renderer.pages);
+        
+        enableToolbar();
+        const openPdfLabel = document.getElementById('openPdfLabel');
+        const editPdfBtn = document.getElementById('editPdfBtn');
+        const addPdfLabel = document.getElementById('addPdfLabel');
+        
+        if (openPdfLabel) openPdfLabel.style.display = 'none';
+        if (editPdfBtn) editPdfBtn.style.display = 'inline-block';
+        if (addPdfLabel) addPdfLabel.style.display = 'inline-block';
+    }
 
     // Helper for safe event listeners
     const addListener = (id, event, handler) => {
@@ -51,6 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (openPdfLabel) openPdfLabel.style.display = 'none';
         if (editPdfBtn) editPdfBtn.style.display = 'inline-block';
         if (addPdfLabel) addPdfLabel.style.display = 'inline-block';
+        
+        window.saveState();
     });
 
     let pendingPdfFile = null;
@@ -80,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.loadedPdfs.push({ id: pdfId, name: file.name, bytes: arrayBuffer.slice(0) });
         
         await renderer.appendPDF(arrayBuffer, pdfId, file.name, position);
+        window.saveState();
     };
 
     addListener('insertStartBtn', 'click', () => processAddPdf('start'));

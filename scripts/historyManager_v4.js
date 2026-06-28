@@ -11,6 +11,7 @@ class HistoryManager {
         this.undoStack.push(command);
         this.redoStack = []; 
         this.updateButtons();
+        if (window.saveState) window.saveState();
     }
 
     undo() {
@@ -19,6 +20,7 @@ class HistoryManager {
             command.undo();
             this.redoStack.push(command);
             this.updateButtons();
+            if (window.saveState) window.saveState();
         }
     }
 
@@ -28,6 +30,7 @@ class HistoryManager {
             command.execute();
             this.undoStack.push(command);
             this.updateButtons();
+            if (window.saveState) window.saveState();
         }
     }
 

@@ -66,7 +66,8 @@ class PDFRenderer {
 
     async appendPDF(arrayBuffer, pdfId, pdfName, position = 'end') {
         try {
-            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+            const bufferClone = arrayBuffer.slice(0);
+            const loadingTask = pdfjsLib.getDocument({ data: bufferClone });
             const pdfDoc = await loadingTask.promise;
             
             let insertIndex = -1;

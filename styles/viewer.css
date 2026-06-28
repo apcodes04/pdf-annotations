@@ -239,11 +239,11 @@ body.edit-mode .pdf-group-header .edit-mode-controls {
     min-width: 20px;
     min-height: 20px;
     cursor: move;
-    border: 1px dashed transparent;
-    box-sizing: border-box;
+    border: 2px dashed rgba(136, 136, 136, 0.5);
+    background: rgba(0, 0, 0, 0.01);
 }
 .dont-invert-box.active {
-    border-color: #8ab4f8;
+    border: 2px dashed #8ab4f8;
 }
 body.dark-mode .dont-invert-box {
     backdrop-filter: invert(1) hue-rotate(180deg) contrast(111%);
