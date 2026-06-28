@@ -256,8 +256,8 @@ class AnnotationManager {
                 color = '#000000';
             }
             return {
-                bold: content.classList.contains('bold'),
-                italic: content.classList.contains('italic'),
+                bold: content.style.fontWeight === 'bold' || content.style.fontWeight === '700',
+                italic: content.style.fontStyle === 'italic',
                 color: color,
                 fontSize: parseInt(content.style.fontSize) || 16,
                 fontFamily: content.style.fontFamily || 'Helvetica',
