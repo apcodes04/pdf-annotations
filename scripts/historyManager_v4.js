@@ -116,8 +116,8 @@ class StyleCommand {
     applyStyle(style) {
         if (this.annotation.type === 'text') {
             const content = this.annotation.element.querySelector('.text-box-content');
-            content.classList.toggle('bold', style.bold);
-            content.classList.toggle('italic', style.italic);
+            content.style.fontWeight = style.bold ? 'bold' : 'normal';
+            content.style.fontStyle = style.italic ? 'italic' : 'normal';
             
             if (style.color === 'auto') {
                 content.classList.add('auto-color');
