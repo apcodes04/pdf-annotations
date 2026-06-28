@@ -684,11 +684,15 @@ class AnnotationManager {
             if (data.type === 'text') {
                 const content = document.createElement('div');
                 content.className = 'text-box-content';
+                if (data.style.color === 'auto') {
+                    content.classList.add('auto-color');
+                } else {
+                    content.style.color = data.style.color;
+                }
                 content.contentEditable = true;
                 content.innerText = data.text;
                 content.style.fontFamily = data.style.fontFamily;
                 content.style.fontSize = `${data.style.fontSize}px`;
-                content.style.color = data.style.color;
                 content.style.fontWeight = data.style.bold ? 'bold' : 'normal';
                 content.style.fontStyle = data.style.italic ? 'italic' : 'normal';
                 if (!data.style.border) box.style.border = 'none';
