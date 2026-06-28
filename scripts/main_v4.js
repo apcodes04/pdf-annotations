@@ -58,11 +58,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    addListener('startNewPdfBtn', 'click', async () => {
-        if (confirm("You are trying to create a new file. All your data will be unsaved. Are you sure you want to proceed?")) {
-            await window.storageManager.clearState();
-            window.location.reload();
-        }
+    addListener('startNewPdfBtn', 'click', () => {
+        const dialog = document.getElementById('startNewPdfDialog');
+        if (dialog) dialog.showModal();
+    });
+
+    addListener('startNewCancelBtn', 'click', () => {
+        const dialog = document.getElementById('startNewPdfDialog');
+        if (dialog) dialog.close();
+    });
+
+    addListener('startNewConfirmBtn', 'click', async () => {
+        const dialog = document.getElementById('startNewPdfDialog');
+        if (dialog) dialog.close();
+        await window.storageManager.clearState();
+        window.location.reload();
     });
 
     addListener('fileInput', 'change', async (e) => {

@@ -106,6 +106,15 @@
         </div>
     </dialog>
     
+    <dialog id="startNewPdfDialog" style="border: none; border-radius: 8px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+        <h3 style="margin-top: 0; color: #ff5252;">Start New PDF?</h3>
+        <p>You are trying to create a new file. <strong>All your current data will be cleared and unsaved.</strong><br>Are you sure you want to proceed?</p>
+        <div style="display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end;">
+            <button id="startNewCancelBtn" class="format-btn">Cancel</button>
+            <button id="startNewConfirmBtn" class="format-btn" style="background-color: #ff5252; color: white; border-color: #ff5252;">Yes, Start New</button>
+        </div>
+    </dialog>
+    
     <div id="mainContent">
         <div id="sidebar">
             <div id="thumbnailsContainer"></div>
