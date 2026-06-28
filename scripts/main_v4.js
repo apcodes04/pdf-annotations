@@ -31,10 +31,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const openPdfLabel = document.getElementById('openPdfLabel');
         const editPdfBtn = document.getElementById('editPdfBtn');
         const addPdfLabel = document.getElementById('addPdfLabel');
+        const startNewPdfBtn = document.getElementById('startNewPdfBtn');
         
         if (openPdfLabel) openPdfLabel.style.display = 'none';
         if (editPdfBtn) editPdfBtn.style.display = 'inline-block';
         if (addPdfLabel) addPdfLabel.style.display = 'inline-block';
+        if (startNewPdfBtn) startNewPdfBtn.style.display = 'inline-block';
     }
 
     // Helper for safe event listeners
@@ -56,6 +58,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    addListener('startNewPdfBtn', 'click', async () => {
+        if (confirm("You are trying to create a new file. All your data will be unsaved. Are you sure you want to proceed?")) {
+            await window.storageManager.clearState();
+            window.location.reload();
+        }
+    });
+
     addListener('fileInput', 'change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
@@ -74,10 +83,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const openPdfLabel = document.getElementById('openPdfLabel');
         const editPdfBtn = document.getElementById('editPdfBtn');
         const addPdfLabel = document.getElementById('addPdfLabel');
+        const startNewPdfBtn = document.getElementById('startNewPdfBtn');
         
         if (openPdfLabel) openPdfLabel.style.display = 'none';
         if (editPdfBtn) editPdfBtn.style.display = 'inline-block';
         if (addPdfLabel) addPdfLabel.style.display = 'inline-block';
+        if (startNewPdfBtn) startNewPdfBtn.style.display = 'inline-block';
         
         window.saveState();
     });
